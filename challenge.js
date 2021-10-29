@@ -1,7 +1,7 @@
 //Mandar un diff por cada una de estas
 //✔️ agregar otro check: para multiplo de 10 imprimir bar, crear un tag con eso (tal vez necesite commit intermedios)
 // ✔️ poder pasar checks como parametros de la funcion foo bar. 
-//configurar si la condicion es exclusiva o no. Que tenga que imprimir var con una o con todas
+// ✔️ configurar si la condicion es exclusiva o no. Que tenga que imprimir var con una o con todas
 
 function isPrime(num) {
   const half = Math.ceil(num / 2);
@@ -31,20 +31,39 @@ function isBetweenNineAndEleven(num) {
 }
 
 
-function foobar(n, ...conditions){
+
+
+function foobar(n, exclusive, ...conditions){
+  //If no condition given it defaults to primes
+  if (conditions.length == 0) {
+    conditions = [isPrime]
+  }
+
   for (let i=1; i<=n; i++) {
     let toPrint = "";
-    let anyConditionPassed = false;
+    let conditionsPassed = false;
 
-    conditions.forEach((condition, index)=> {
-      const conditionCheck = condition(i);
-      toPrint = toPrint + ` cond${index}: ${conditionCheck},`
-      if (conditionCheck) {
-        anyConditionPassed = true
-      }
-    });
+    if (exclusive) {
+      conditionsPassed = true 
+      conditions.forEach((condition, index) => {
+        const conditionCheck = condition(i);
+        toPrint = toPrint + ` cond${index}: ${conditionCheck}`
+        if (!conditionCheck) {
+          conditionsPassed = false
+        }
+      });
 
-    if (anyConditionPassed){
+    } else {
+      conditions.forEach((condition, index) => {
+        const conditionCheck = condition(i);
+        toPrint = toPrint + ` cond${index}: ${conditionCheck}`
+        if (conditionCheck) {
+          conditionsPassed = true
+        }
+      });
+    }
+    
+    if (conditionsPassed){
       console.log(i, 'bar', toPrint);
     } else {
       console.log(i, 'foo', toPrint);
@@ -53,8 +72,14 @@ function foobar(n, ...conditions){
 }
 
 
-//First argument of foobar is the number of prints
-//Rest of arguments are conditions to check, if any is true return var. 
-foobar(20, isPrime, isMultipleOfTen);
+//First argument of foobar is the number of prints. It is required
+//Second argument of foobars checks conditions logic. It is required
+//If exclusive:true all conditions need to be met to print bar. If false only one true condition is enough.
+//Rest of arguments are conditions to check, if any is true return var. Defaults to check prime numbers 
+foobar(20, false, isPrime, isMultipleOfTen);
 console.log('-------------------------------------------');
-foobar(15, x => x <= 5, isBetweenNineAndEleven);
+foobar(15, false, x => x <= 5, isBetweenNineAndEleven);
+console.log('-------------------------------------------');
+foobar(20, true, isPrime, x => x <= 10);
+console.log('-------------------------------------------');
+foobar(20, false);
